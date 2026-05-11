@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login — TaskManager</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0e0e10; --surface: #18181c; --surface2: #222228; --border: #2e2e38;
+      --accent: #c8f135; --accent2: #7c6af7; --text: #f0f0f5; --muted: #6b6b80;
+      --danger: #f1354a; --radius: 12px;
+      --font: 'Syne', sans-serif; --mono: 'DM Mono', monospace;
+    }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background-image:
+        radial-gradient(ellipse 70% 50% at 50% -10%, rgba(200,241,53,.09) 0%, transparent 60%),
+        radial-gradient(ellipse 40% 30% at 80% 100%, rgba(124,106,247,.06) 0%, transparent 55%);
+    }
+
+    /* BRAND */
+    .brand {
+      margin-bottom: 36px;
+      text-align: center;
+      animation: fadeDown .5s ease both;
+    }
+    .brand-name {
+      font-size: 1.5rem;
+      font-weight: 800;
+      letter-spacing: -1.5px;
+      color: var(--text);
+    }
+    .brand-name span { color: var(--accent); }
+    .brand-sub {
+      font-family: var(--mono);
+      font-size: .68rem;
+      color: var(--muted);
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      margin-top: 4px;
+    }
+
+    /* CARD */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 36px 32px 32px;
+      width: 100%;
+      max-width: 400px;
+      animation: fadeUp .5s ease .1s both;
+    }
+
+    .card-title {
+      font-size: 1.7rem;
+      font-weight: 800;
+      letter-spacing: -1.5px;
+      margin-bottom: 6px;
+    }
+    .card-title span { color: var(--accent); }
+    .card-desc {
+      font-family: var(--mono);
+      font-size: .72rem;
+      color: var(--muted);
+      margin-bottom: 28px;
+    }
+
+    /* FORM */
+    .field { margin-bottom: 18px; }
+    .field label {
+      display: block;
+      font-family: var(--mono);
+      font-size: .68rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--muted);
+      margin-bottom: 7px;
+    }
+    .field input {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-family: var(--mono);
+      font-size: .9rem;
+      padding: 11px 14px;
+      outline: none;
+      transition: border-color .15s, box-shadow .15s;
+    }
+    .field input::placeholder { color: var(--muted); opacity: .6; }
+    .field input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(200,241,53,.1);
+    }
+    .field input.error {
+      border-color: var(--danger);
+      box-shadow: 0 0 0 3px rgba(241,53,74,.1);
+    }
+
+    /* PASSWORD WRAPPER */
+    .pw-wrap { position: relative; }
+    .pw-wrap input { padding-right: 42px; }
+    .pw-toggle {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--muted);
+      font-size: .85rem;
+      padding: 2px;
+      transition: color .15s;
+    }
+    .pw-toggle:hover { color: var(--text); }
+
+    /* REMEMBER ROW */
+    .row-split {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+      margin-top: -4px;
+    }
+    .checkbox-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      font-family: var(--mono);
+      font-size: .72rem;
+      color: var(--muted);
+      user-select: none;
+    }
+    .checkbox-label input[type="checkbox"] { display: none; }
+    .checkbox-box {
+      width: 16px;
+      height: 16px;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      background: var(--surface2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: border-color .15s, background .15s;
+      flex-shrink: 0;
+    }
+    .checkbox-label input:checked + .checkbox-box {
+      background: var(--accent);
+      border-color: var(--accent);
+    }
+    .checkbox-label input:checked + .checkbox-box::after {
+      content: '';
+      display: block;
+      width: 9px;
+      height: 5px;
+      border-left: 2px solid #0e0e10;
+      border-bottom: 2px solid #0e0e10;
+      transform: rotate(-45deg) translateY(-1px);
+    }
+    .forgot {
+      font-family: var(--mono);
+      font-size: .72rem;
+      color: var(--muted);
+      text-decoration: none;
+      transition: color .15s;
+    }
+    .forgot:hover { color: var(--accent); }
+
+    /* SUBMIT */
+    .btn-submit {
+      width: 100%;
+      background: var(--accent);
+      color: #0e0e10;
+      font-family: var(--font);
+      font-weight: 800;
+      font-size: .95rem;
+      letter-spacing: .3px;
+      padding: 13px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: opacity .15s, transform .1s;
+      position: relative;
+      overflow: hidden;
+    }
+    .btn-submit:hover { opacity: .88; }
+    .btn-submit:active { transform: scale(.98); }
+    .btn-submit:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+
+    /* SPINNER inside button */
+    .spinner {
+      display: none;
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(14,14,16,.3);
+      border-top-color: #0e0e10;
+      border-radius: 50%;
+      animation: spin .6s linear infinite;
+      margin: 0 auto;
+    }
+    .btn-submit.loading .btn-text { display: none; }
+    .btn-submit.loading .spinner { display: block; }
+
+    /* ERROR BANNER */
+    .error-banner {
+      display: none;
+      align-items: center;
+      gap: 10px;
+      background: rgba(241,53,74,.1);
+      border: 1px solid rgba(241,53,74,.3);
+      border-radius: 8px;
+      padding: 11px 14px;
+      margin-bottom: 20px;
+      font-family: var(--mono);
+      font-size: .75rem;
+      color: var(--danger);
+    }
+    .error-banner.visible { display: flex; animation: shake .3s ease; }
+
+    /* DIVIDER */
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 24px 0;
+      font-family: var(--mono);
+      font-size: .65rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .divider::before, .divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* FOOTER */
+    .card-footer {
+      text-align: center;
+      font-family: var(--mono);
+      font-size: .72rem;
+      color: var(--muted);
+      margin-top: 20px;
+    }
+    .card-footer a {
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 500;
+    }
+    .card-footer a:hover { text-decoration: underline; }
+
+    /* ANIMATIONS */
+    @keyframes fadeDown {
+      from { opacity: 0; transform: translateY(-12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(14px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25%       { transform: translateX(-5px); }
+      75%       { transform: translateX(5px); }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="brand">
+    <div class="brand-name">Task<span>.</span></div>
+    <div class="brand-sub">Manage what matters</div>
+  </div>
+
+  <div class="card">
+    <h1 class="card-title">Welcome <span>back.</span></h1>
+    <p class="card-desc">// sign in to your workspace</p>
+
+    <div class="error-banner" id="errorBanner">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6.5" stroke="currentColor"/><path d="M7 4v3.5M7 9.5v.5" stroke="currentColor" stroke-linecap="round"/></svg>
+      <span id="errorText">Invalid credentials. Please try again.</span>
+    </div>
+
+    <form id="loginForm" novalidate>
+      <div class="field">
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" placeholder="you@example.com" autocomplete="email" required />
+      </div>
+
+      <div class="field">
+        <label for="password">Password</label>
+        <div class="pw-wrap">
+          <input type="password" id="password" name="password" placeholder="••••••••" autocomplete="current-password" required />
+          <button type="button" class="pw-toggle" id="pwToggle" aria-label="Toggle password visibility">
+            <svg id="eyeIcon" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M1 8s2.5-5 7-5 7 5 7 5-2.5 5-7 5-7-5-7-5z" stroke="currentColor" stroke-width="1.3"/>
+              <circle cx="8" cy="8" r="2" stroke="currentColor" stroke-width="1.3"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="row-split">
+        <label class="checkbox-label">
+          <input type="checkbox" id="remember" name="remember"/>
+          <span class="checkbox-box"></span>
+          Remember me
+        </label>
+        <a href="#" class="forgot">Forgot password?</a>
+      </div>
+
+      <button type="submit" class="btn-submit" id="submitBtn">
+        <a href="/dashboard"></a>
+        <span class="btn-text">Sign In</span>
+        <div class="spinner"></div>
+      </button>
+    </form>
+
+    <div class="divider">or</div>
+
+    <div class="card-footer">
+      Don't have an account? <a href="/register">Create one</a>
+    </div>
+  </div>
+
+  <script>
+    const form = document.getElementById('loginForm');
+    const emailInput = document.getElementById('email');
+    const passwordInput = document.getElementById('password');
+    const submitBtn = document.getElementById('submitBtn');
+    const errorBanner = document.getElementById('errorBanner');
+    const errorText = document.getElementById('errorText');
+    const pwToggle = document.getElementById('pwToggle');
+
+    // Password visibility toggle
+    pwToggle.addEventListener('click', () => {
+      const isPassword = passwordInput.type === 'password';
+      passwordInput.type = isPassword ? 'text' : 'password';
+      pwToggle.querySelector('svg').style.opacity = isPassword ? '1' : '0.45';
+    });
+
+    // Clear error state on input
+    [emailInput, passwordInput].forEach(input => {
+      input.addEventListener('input', () => {
+        input.classList.remove('error');
+        errorBanner.classList.remove('visible');
+      });
+    });
+
+    // Form submission
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const email = emailInput.value.trim();
+      const password = passwordInput.value;
+      let valid = true;
+
+      if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        emailInput.classList.add('error');
+        valid = false;
+      }
+      if (!password || password.length < 6) {
+        passwordInput.classList.add('error');
+        valid = false;
+      }
+
+      if (!valid) {
+        errorText.textContent = 'Please fill in all fields correctly.';
+        errorBanner.classList.add('visible');
+        return;
+      }
+
+      // Loading state
+      submitBtn.disabled = true;
+      submitBtn.classList.add('loading');
+
+      try {
+        const res = await fetch('/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email,
+            password,
+            remember: document.getElementById('remember').checked
+          })
+        });
+
+        const data = await res.json();
+
+        if (res.ok && data.success) {
+          // Redirect on success
+          window.location.href = data.redirect || '/dashboard';
+        } else {
+          errorText.textContent = data.message || 'Invalid credentials. Please try again.';
+          errorBanner.classList.add('visible');
+          passwordInput.classList.add('error');
+        }
+      } catch (err) {
+        errorText.textContent = 'Connection error. Please try again.';
+        errorBanner.classList.add('visible');
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.classList.remove('loading');
+      }
+    });
+  </script>
+
+</body>
+</html>
